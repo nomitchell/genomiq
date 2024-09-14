@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session
+from flask import Flask, request, jsonify, render_template, send_file
 import os
 
 from plasmid import Plasmid
@@ -66,16 +66,22 @@ def insert_gene():
     else:
         dna, _ = model.run_retrieval(req_data["message"])
 
-    print(dna)
-
     plasmid.insert(dna)
 
     features = convert_to_dict_of_dicts(plasmid.feat)
 
-    print(features)
-    print("at end of here")
-    print(jsonify(features))
     return jsonify(features)
+
+@app.route('/save', methods=['GET'])
+def save_file():
+    global plasmid
+    print("top")
+
+    path = plasmid.save()
+
+    print(path)
+    
+    return send_file(path, as_attachment=True)
 
 @app.route('/')
 def index():

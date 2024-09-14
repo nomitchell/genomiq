@@ -1,11 +1,16 @@
 from load_plasmid import p_utils
 from insert_utils import in_utils
 
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+from Bio.SeqFeature import SeqFeature, FeatureLocation
+
 class Plasmid():
     def __init__(self, path):
         self.seq, self.feat, self.rs = p_utils.load_plasmid(path)
 
-        self.rs = in_utils.restriction_ordering(self.rs, self.feat)
+        #self.rs = in_utils.restriction_ordering(self.rs, self.feat)
 
     def insert(self, gene):
         # test = in_utils.restriction_scoring(self.rs, self.feat)
@@ -17,15 +22,13 @@ class Plasmid():
 
         # TODO need to add promoter and terminator stuff
 
+        self.rs = in_utils.restriction_ordering(self.rs, self.feat)
+
         gene_seq = gene["seq"][0][1:-2]
         gene_name = gene["name"]
         gene_len = len(gene_seq)
 
         best_rs_loc = self.rs[0]["location"]
-        
-        print(self.seq)
-        print("\n")
-        print("gene seq", gene_seq)
 
         self.seq = self.seq[:best_rs_loc] + gene_seq + self.seq[best_rs_loc:]
 
@@ -45,4 +48,31 @@ class Plasmid():
                 "name": gene_name
             }
         )
+
+    def save(self):
+        of = "download/out_plasmid.gb"
+        
+        sequence = Seq(self.seq)
+
+        record = SeqRecord(
+            sequence,
+            id="1",
+            name="plasmid",
+            description="Plasmid made with GenomIQ"
+        )
+
+        record.annotations["molecule_type"] = "DNA"
+
+        for f in self.feat:
+            feature = SeqFeature(FeatureLocation(start=f["start"], end=f["end"]), type="gene", qualifiers={"gene": f["name"]})
+            record.features.append(feature)
+
+        with open(of, "w") as output_file:
+            SeqIO.write(record, output_file, "genbank")
+
+        print("GenBank file saved as 'out_plasmid.gb'")
+
+        return of
+
+
 

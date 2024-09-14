@@ -8,7 +8,7 @@
 </head>
 <body>
     <header>
-        <div class="logo"></div>
+        <div class="logo"><img src="static/images/ai-biotech-logo-svg.png"></div>
         <div class="website-name">GenomIQ V1</div>
     </header>
     
@@ -27,7 +27,7 @@
             </div>
     
             <div class="plasmid-options">
-                <label for="plasmid-choice">Choose your plasmid or use recommended</label>
+                <label for="plasmid-choice">Upload plasmid file</label>
                 <div class="button-group">
                     <button class="option-btn" id="select-base">Select Plasmid Base</button>
                     <button class="option-btn" id="upload-plasmid">Upload Your Own</button>
@@ -54,6 +54,8 @@
         <div class="plasmid-container">
             <canvas id="plasmid-canvas" width="800" height="400"></canvas>
         </div>
+
+        <button class="save-button" id="save-btn">Save File</button>
     </main>
 
     <script>
@@ -204,26 +206,21 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Variables to store selected options
             let selectedGeneration = null;
             let selectedPlasmid = null;
 
-            // Function to handle button selection within a group
             function handleSelection(buttons, selectionType) {
                 buttons.forEach(btn => {
                     btn.addEventListener('click', function() {
-                        // Remove 'selected' class from other buttons in the same group
                         buttons.forEach(b => b.classList.remove('selected'));
                         this.classList.add('selected');
 
-                        // Store the selected button based on type
                         if (selectionType === 'generation') {
-                            selectedGeneration = this.id; // Store ID or any attribute
+                            selectedGeneration = this.id;
                         } else if (selectionType === 'plasmid') {
-                            selectedPlasmid = this.id; // Store ID or any attribute
+                            selectedPlasmid = this.id;
                         }
 
-                        // Log the selections for debugging
                         console.log('Selected Generation Option:', selectedGeneration);
                         console.log('Selected Plasmid Option:', selectedPlasmid);
                     });
@@ -242,7 +239,6 @@
                 const message = document.getElementById('chat-message').value;
                 console.log(message);
 
-                // Prepare the data to send to the server
                 const requestData = {
                     message: message,
                     generation: selectedGeneration,
@@ -251,7 +247,6 @@
 
                 console.log(requestData);
 
-                // Send the data to the backend
                 fetch('/insert', {
                     method: 'POST',
                     headers: {
@@ -268,6 +263,25 @@
                     console.error('Error:', error);
                 });
             });
+        });
+
+        document.getElementById('save-btn').addEventListener('click', function() {
+            fetch('/save')
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    }
+                    throw new Error('Failed to download file');
+                })
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'out_plasmid.gb';
+                    link.click();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         });
 
 
