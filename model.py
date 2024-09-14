@@ -2,6 +2,8 @@ import chromadb
 import cohere
 import os
 import re
+import subprocess
+from model_utils import mo_utils
 
 class Model():
     def __init__(self):
@@ -22,6 +24,7 @@ class Model():
         # save money
         # retrieval doesn't need cohere generation
         # extract sequence
+        # TODO cohere model verify if match query
         
         result = self.collection.query(
             query_texts=[query],
@@ -46,7 +49,41 @@ class Model():
         )
         
         print(response)
+
+    def verify_structure(self, dna):
+        # given generated string, use alphafold to asses biological viability
+        # colabfold_batch input outputdir/
+        # need to build file
+
+        mo_utils.clean_folder()
+        mo_utils.generate_fasta(dna)
         
+        command = ["colabfold_batch", "input/structure", "output/verify/"]
+        command = 'source "/home/nomitchell/anaconda3/etc/profile.d/conda.sh" && conda activate base && colabfold_batch input/structure/temp.fasta output/verify'
 
+        try:
+            result = subprocess.run(['bash', '-c', command], check=True, text=True)
+            print("LCF executed succesfully")
+        except subprocess.CalledProcessError as e:
+            print("Couldn't execute subprocess command.")
 
+        # for some reason prosa wasn't working when file had a header
+        fname = "output/verify/sp_AA_unrelaxed_rank_001_alphafold2_ptm_model_5_seed_000.pdb"
+
+        with open(fname, 'r') as file:
+            lines = file.readlines()
+            lines = lines[1:]
+
+        with open(fname, 'w') as file:
+            file.writelines(lines)
+
+        # access prosa site, make post, scrape results
+
+        z_score = mo_utils.get_z_score(fname)
+
+        print("Z score", z_score)
+
+        return z_score
+
+            
 

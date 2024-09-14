@@ -16,9 +16,9 @@ model = Model()
 
 model.add_documents(documents, filenames)
 
-model.run_scratch("generate a DNA string that makes my yeast glow")
+#model.run_scratch("generate a DNA string that makes my yeast glow")
 
-path = "input/plasmid.dna"
+path = "input/plasmid/plasmid.dna"
 
 plas = Plasmid(path)
 
@@ -28,3 +28,7 @@ gene = {
 }
 
 plas.insert(gene)
+
+sequence = "ATGATGATGATGATGTAGATGTAGATG"
+model.verify_structure(sequence)
+
