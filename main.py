@@ -65,10 +65,15 @@ def insert_gene():
         dna, zscore = model.run_scratch(req_data["message"])
     else:
         dna, _ = model.run_retrieval(req_data["message"])
+        zscore = None
 
+    print("here a time")
     plasmid.insert(dna)
 
     features = convert_to_dict_of_dicts(plasmid.feat)
+
+    if zscore is not None:
+        features[1000] = {'z_score': zscore}
 
     return jsonify(features)
 

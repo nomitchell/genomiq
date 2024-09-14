@@ -42,9 +42,10 @@ class Model():
         extracted = re.findall(pattern, vector_choice, re.DOTALL)
 
         gene = {
-            "seq": extracted,
+            "seq": extracted[0][1:-2],
             "name": "inserted1"
         }
+        print('gene', gene)
 
         return gene, None
 

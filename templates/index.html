@@ -96,11 +96,18 @@
         });
 
         function updateVisualizer(data) {
-            const dataArray = Object.values(data);
+            dataArray = Object.values(data);
             console.log('Data Array:', dataArray);
 
             const canvas = document.getElementById('plasmid-canvas');
             const ctx = canvas.getContext('2d');
+
+            const zScoreObject = dataArray.find(item => item.hasOwnProperty('z_score'));
+            let zscore = zScoreObject ? zScoreObject["z_score"] : null;
+
+            console.log(zscore)
+
+            dataArray = dataArray.filter(item => item["z_score"] === undefined);
 
             if (!ctx) {
                 console.error('Failed to get canvas context');
@@ -123,6 +130,8 @@
 
             const maxEnd = Math.max(...dataArray.map(f => f.end));
             const scale = (2 * Math.PI * radius) / maxEnd;
+
+            console.log(dataArray);
 
             dataArray.forEach(feature => {
                 const startAngle = (feature.start / maxEnd) * 2 * Math.PI;
@@ -155,6 +164,11 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillText(feature.name, adjustedX, adjustedY);
             });
+
+            // Example usage of the function
+            if (zscore !== null) {
+                drawCenteredText(ctx, "Z Score: " + String(zscore), canvas.width, canvas.height, '24px', 'Arial', '#ff5c5c');
+            }
         }
 
         function getRandomPastelColor() {
@@ -284,6 +298,20 @@
                 });
         });
 
+        function drawCenteredText(ctx, text, canvasWidth, canvasHeight, fontSize = '20px', fontFamily = 'Arial', textColor = '#000') {
+            // Set the font style
+            ctx.font = `${fontSize} ${fontFamily}`;
+            ctx.textAlign = 'center'; // Center the text horizontally
+            ctx.textBaseline = 'middle'; // Center the text vertically
+            ctx.fillStyle = textColor; // Set the text color
+
+            // Calculate the center position
+            const x = canvasWidth / 2;
+            const y = canvasHeight / 2;
+
+            // Draw the text
+            ctx.fillText(text, x, y);
+        }
 
     </script>
 </body>

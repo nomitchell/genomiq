@@ -24,7 +24,7 @@ class Plasmid():
 
         self.rs = in_utils.restriction_ordering(self.rs, self.feat)
 
-        gene_seq = gene["seq"][0][1:-2]
+        gene_seq = gene["seq"]
         gene_name = gene["name"]
         gene_len = len(gene_seq)
 
@@ -41,6 +41,8 @@ class Plasmid():
                 f["start"] += gene_len
                 f["end"] += gene_len
         
+        print("appending", gene)
+
         self.feat.append(
             {
                 "start": best_rs_loc,
