@@ -1,0 +1,9 @@
+Name: eGFP
+Summarized Function: Enhanced Green Fluorescent Protein (eGFP) is a widely used fluorescent marker in molecular and cellular biology for tracking gene expression, protein localization, and cellular processes. It emits green fluorescence when exposed to ultraviolet or blue light.
+Description: eGFP is a variant of the Green Fluorescent Protein (GFP) originally derived from the jellyfish Aequorea victoria. It has been engineered to exhibit improved brightness and photostability compared to the wild-type GFP. eGFP is commonly used in fluorescence microscopy, flow cytometry, and other imaging techniques to visualize and study biological processes in living cells.
+Notes: eGFP is often used as a reporter gene in various experimental setups. It allows researchers to monitor gene expression and protein interactions in real-time. When incorporating eGFP into experimental designs, it's important to consider its potential effects on the target protein's function and localization.
+
+Sequence:
+```
+atggctagcaaaggagaagaactcttcactggagttgtcccaattcttgttgaattagatggtgatgttaacggccacaagttctctgtcagtggagagggtgaaggtgatgcaacatacggaaaacttaccctgaagttcatctgcactactggcaaactgcctgttccatggccaaccctggtcactactctgtgctatggtgttcaatgcttttcaagatacccggatcatatgaaacggcatgactttttcaagagtgccatgcccgaaggttatgtacaggaaaggaccatcttcttcaaagatgacggcaactacaagacacgtgctgaagtcaagtttgaaggtgatacccttgttaatagaatcgagttaaaaggtattgacttcaaggaagatggcaacattctgggacacaaattggaatacaactataactcacacaatgtatacatcatggcagacaaacaaaagaatggaatcaaagtgaacttcaagacccgccacaacattgaagatggaagcgttcaactagcagaccattatcaacaaaatactccaattggcgatggccctgtccttttaccagacaaccattacctgtccacacaatctgccctttcgaaagatcccaacgaaaagagagaccacatggtccttcttgagtttgtaacagctgctgggattacacatggcatggatgaactgtacaat
+```

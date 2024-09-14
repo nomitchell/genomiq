@@ -11,10 +11,13 @@ class in_utils():
                     min_dist = abs(site - feat['start'])
                 elif abs(site - feat['end']) < min_dist:
                     min_dist = abs(site - feat['end'])
+                elif site > feat['start'] and site < feat['end']:
+                    # if the restriction site is inside a gene thats already present, really bad!
+                    return -1
 
             return min_dist
                           
-        sites.sort(key=get_distance)
+        sites.sort(reverse=True, key=get_distance)
 
         return sites
 
