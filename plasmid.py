@@ -6,6 +6,12 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation
 
+# constants for general use, in actualy production would vary based on factors
+PROMOTER = ('tef1 promoter', 'tatcacataggaagcaacaggcgcgttggacttttaattttcgaggaccgcgaatccttacatcacacccaatcccccacaagtgatcccccacacaccatagcttcaaaatgtttctactccttttttactcttccagattttctcggactccgcgcatcgccgtaccacttcaaaacacccaagcacagcatactaaatttcccctctttcttcctctagggtgtcgttaattacccgtactaaaggtttggaaaagaaaaaagagaccgcctcgtttctttttcttcgtcgaaaaaggcaataaaaatttttatcacgtttctttttcttgaaaatttttttttttgatttttttctctttcgatgacctcccattgatatttaagttaataaacggtcttcaatttctcaagtttcagtttcatttttcttgttctattacaactttttttacttcttgctcattagaaagaaagcatagcaatctaatctaagttttaattacaaa')
+TERMINATOR = ('cyc1 terminator', 'tcatgtaattagttatgtcacgcttacattcacgccctccccccacatccgctctaaccgaaaaggaaggagttagacaacctgaagtctaggtccctatttatttttttatagttatgttagtattaagaacgttatttatatttcaaatttttcttttttttctgtacagacgcgtgtacgcatgtaacattatactgaaaaccttgcttgagaaggttttgggacgctcgaaggctttaatttgc')
+ADDED_LEN = len(PROMOTER[1]) + len(TERMINATOR[1])
+
+
 class Plasmid():
     def __init__(self, path):
         self.seq, self.feat, self.rs = p_utils.load_plasmid(path)
@@ -30,24 +36,40 @@ class Plasmid():
 
         best_rs_loc = self.rs[0]["location"]
 
-        self.seq = self.seq[:best_rs_loc] + gene_seq + self.seq[best_rs_loc:]
+        self.seq = self.seq[:best_rs_loc] + PROMOTER[1] + gene_seq + TERMINATOR[1] + self.seq[best_rs_loc:]
 
         for rsite in self.rs:
             if rsite["location"] > best_rs_loc:
-                rsite["location"] += gene_len
+                rsite["location"] += (gene_len + ADDED_LEN)
         
         for f in self.feat:
             if f["start"] > best_rs_loc:
-                f["start"] += gene_len
-                f["end"] += gene_len
+                f["start"] += (gene_len + ADDED_LEN)
+                f["end"] += (gene_len + ADDED_LEN)
         
         print("appending", gene)
 
         self.feat.append(
             {
-                "start": best_rs_loc,
-                "end": best_rs_loc + gene_len,
+                "start": best_rs_loc + len(PROMOTER[1]),
+                "end": best_rs_loc + gene_len + len(PROMOTER[1]),
                 "name": gene_name
+            }
+        )
+
+        self.feat.append(
+            {
+                "start": best_rs_loc,
+                "end": best_rs_loc + len(PROMOTER[1]),
+                "name": PROMOTER[0]
+            }
+        )
+        
+        self.feat.append(
+            {
+                "start": best_rs_loc + len(PROMOTER[1]) + gene_len,
+                "end": best_rs_loc + ADDED_LEN + gene_len,
+                "name": TERMINATOR[0]
             }
         )
 

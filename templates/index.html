@@ -95,32 +95,38 @@
             });
         });
 
-        function updateVisualizer(data) {
-            dataArray = Object.values(data);
+        function updateVisualizer(data) { 
+            // Convert data to an array of values and log it
+            let dataArray = Object.values(data);
             console.log('Data Array:', dataArray);
 
             const canvas = document.getElementById('plasmid-canvas');
+            const height = canvas.height;
             const ctx = canvas.getContext('2d');
 
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Find and extract z_score, if it exists
             const zScoreObject = dataArray.find(item => item.hasOwnProperty('z_score'));
             let zscore = zScoreObject ? zScoreObject["z_score"] : null;
+            console.log(zscore);
 
-            console.log(zscore)
-
-            dataArray = dataArray.filter(item => item["z_score"] === undefined);
+            // Filter out items with z_score
+            dataArray = dataArray.filter(item => !item.hasOwnProperty('z_score'));
 
             if (!ctx) {
                 console.error('Failed to get canvas context');
                 return;
             }
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, height);
 
-            const radius = Math.min(canvas.width, canvas.height) / 2 - 10;
+            const radius = Math.min(canvas.width, height) / 2 - 10;
             const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
+            const centerY = height / 2;
             const ringWidth = 10; 
 
+            // Draw background ring
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius + ringWidth, 0, 2 * Math.PI);
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, true); 
@@ -134,9 +140,11 @@
             console.log(dataArray);
 
             dataArray.forEach(feature => {
+                console.log(feature.name)
                 const startAngle = (feature.start / maxEnd) * 2 * Math.PI;
                 const endAngle = (feature.end / maxEnd) * 2 * Math.PI;
 
+                // Draw feature arcs
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius - 2, startAngle, endAngle);
                 ctx.arc(centerX, centerY, radius - ringWidth, endAngle, startAngle, true);
@@ -144,32 +152,31 @@
                 ctx.fillStyle = getRandomPastelColor();
                 ctx.fill();
 
+                // Calculate and draw feature label
                 const labelAngle = (startAngle + endAngle) / 2;
-                const labelRadius = radius - ringWidth / 2;
+                const labelRadius = radius - ringWidth / 2; // Original label radius
 
-                ctx.font = '12px Arial';
-                const textWidth = ctx.measureText(feature.name).width;
+                // Increase the label radius to move the text labels further out
+                const offset = -35; // Adjust this value to control the distance
+                const adjustedLabelRadius = labelRadius + offset;
 
-                const labelX = centerX + labelRadius * Math.cos(labelAngle);
-                const labelY = centerY + labelRadius * Math.sin(labelAngle);
-
-                const textOffset = textWidth / 2;
-                const angle = Math.atan2(labelY - centerY, labelX - centerX);
-                const adjustedX = labelX + (labelRadius * 0.1) * Math.cos(angle) * 2;
-                const adjustedY = labelY + (labelRadius * 0.1) * Math.sin(angle) * 2;
+                const labelX = centerX + adjustedLabelRadius * Math.cos(labelAngle);
+                const labelY = centerY + adjustedLabelRadius * Math.sin(labelAngle);
 
                 ctx.font = '12px Arial';
                 ctx.fillStyle = '#FFF';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(feature.name, adjustedX, adjustedY);
+                ctx.fillText(feature.name, labelX, labelY);
             });
 
-            // Example usage of the function
-            if (zscore !== null) {
-                drawCenteredText(ctx, "Z Score: " + String(zscore), canvas.width, canvas.height, '24px', 'Arial', '#ff5c5c');
-            }
-        }
+
+    // Draw Z Score text if available
+    if (zscore !== null) {
+        drawCenteredText(ctx, "Z Score: " + String(zscore), canvas.width, canvas.height, '24px', 'Arial', '#ff5c5c');
+    }
+}
+
 
         function getRandomPastelColor() {
             const getRandomValue = () => Math.floor(Math.random() * 128 + 127);
@@ -310,6 +317,7 @@
             const y = canvasHeight / 2;
 
             // Draw the text
+            console.log("GRAAAAAHHHH")
             ctx.fillText(text, x, y);
         }
 
