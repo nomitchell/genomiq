@@ -17,12 +17,16 @@ class Plasmid():
 
         # TODO need to add promoter and terminator stuff
 
-        gene_seq = gene["seq"]
+        gene_seq = gene["seq"][0][1:-2]
         gene_name = gene["name"]
         gene_len = len(gene_seq)
 
         best_rs_loc = self.rs[0]["location"]
         
+        print(self.seq)
+        print("\n")
+        print("gene seq", gene_seq)
+
         self.seq = self.seq[:best_rs_loc] + gene_seq + self.seq[best_rs_loc:]
 
         for rsite in self.rs:

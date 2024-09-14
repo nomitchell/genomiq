@@ -14,11 +14,17 @@ class Model():
         with open("prompts/generate.txt", 'r') as f:
             self.generate_prompt = f.read()
 
-    def add_documents(self, documents, filenames):
-        self.collection.add(
-            documents=documents,
-            ids=filenames
-        )
+        documents = []
+        filenames = []
+
+        dataset = "dataset/curated"
+
+        for filename in os.listdir(dataset):
+            with open(os.path.join(dataset, filename), 'r') as f:
+                documents.append(f.read())
+                filenames.append(filename)
+
+        self._add_documents(documents, filenames)
 
     def run_retrieval(self, query):
         # save money
@@ -35,20 +41,36 @@ class Model():
         pattern = r'```(.*?)```'
         extracted = re.findall(pattern, vector_choice, re.DOTALL)
 
-        return extracted
+        gene = {
+            "seq": extracted,
+            "name": "inserted1"
+        }
+
+        return gene, None
 
     def run_scratch(self, query):
         # TODO simple fine tune
 
         prompt = self.generate_prompt + "\n" + query
 
-        print(prompt)
-
+        print('starting gen')
         response = self.co.chat(
             message=prompt
         )
-        
-        print(response)
+        print("done gen")
+
+        print('response', response)
+
+        dna = response.text
+
+        z_score = self.verify_structure(dna)
+
+        gene = {
+            "seq": dna,
+            "name": "inserted1"
+        }
+
+        return gene, z_score
 
     def verify_structure(self, dna):
         # given generated string, use alphafold to asses biological viability
@@ -84,6 +106,12 @@ class Model():
         print("Z score", z_score)
 
         return z_score
+
+    def _add_documents(self, documents, filenames):
+        self.collection.add(
+            documents=documents,
+            ids=filenames
+        )
 
             
 

@@ -43,12 +43,12 @@
         <div class="blurb-text">Genetic Engineering Redefined.</div>
 
         <div class="gradient-text">Simply describe what feature you want to add to your plasmid. Our automated system will handle the cutting, insertion including a promoter and terminator, as well as verification.</div>
-        
+
         <div class="chat-container">
-            <div class="chat-input">
+            <form id="chat-form" class="chat-input">
                 <input type="text" id="chat-message" placeholder="Enter your message...">
-                <button class="send-btn" id="send-message">Send</button>
-            </div>
+                <button class="send-btn" id="send-message" type="submit">Send</button>
+            </form>
         </div>
 
         <div class="plasmid-container">
@@ -202,6 +202,75 @@
                 alert("Please enter a project name!");
             }
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables to store selected options
+            let selectedGeneration = null;
+            let selectedPlasmid = null;
+
+            // Function to handle button selection within a group
+            function handleSelection(buttons, selectionType) {
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        // Remove 'selected' class from other buttons in the same group
+                        buttons.forEach(b => b.classList.remove('selected'));
+                        this.classList.add('selected');
+
+                        // Store the selected button based on type
+                        if (selectionType === 'generation') {
+                            selectedGeneration = this.id; // Store ID or any attribute
+                        } else if (selectionType === 'plasmid') {
+                            selectedPlasmid = this.id; // Store ID or any attribute
+                        }
+
+                        // Log the selections for debugging
+                        console.log('Selected Generation Option:', selectedGeneration);
+                        console.log('Selected Plasmid Option:', selectedPlasmid);
+                    });
+                });
+            }
+
+            const generateOptions = document.querySelectorAll('.option-group .option-btn');
+            handleSelection(generateOptions, 'generation');
+
+            const plasmidOptions = document.querySelectorAll('.plasmid-options .option-btn');
+            handleSelection(plasmidOptions, 'plasmid');
+
+            document.getElementById('chat-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const message = document.getElementById('chat-message').value;
+                console.log(message);
+
+                // Prepare the data to send to the server
+                const requestData = {
+                    message: message,
+                    generation: selectedGeneration,
+                    plasmid: selectedPlasmid
+                };
+
+                console.log(requestData);
+
+                // Send the data to the backend
+                fetch('/insert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData),
+                })
+                .then(response => response.json())
+                .then(data => {
+                        console.log('Insertion succesful', data);
+                        updateVisualizer(data)
+                    })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+
+
     </script>
 </body>
 </html>
