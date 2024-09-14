@@ -31,6 +31,7 @@
                 <div class="button-group">
                     <button class="option-btn" id="select-base">Select Plasmid Base</button>
                     <button class="option-btn" id="upload-plasmid">Upload Your Own</button>
+                    <input type="file" id="file-input" style="display: none;">
                 </div>
             </div>
     
@@ -38,7 +39,7 @@
         </div>
     </div>
 
-    <main id="main-content" class="hidden">
+    <main id="main-content">
         <div class="blurb-text">Genetic Engineering Redefined.</div>
 
         <div class="gradient-text">Simply describe what feature you want to add to your plasmid. Our automated system will handle the cutting, insertion including a promoter and terminator, as well as verification.</div>
@@ -51,26 +52,152 @@
         </div>
 
         <div class="plasmid-container">
-            <div class="plasmid-ring" id="plasmid-ring"></div>
+            <canvas id="plasmid-canvas" width="800" height="400"></canvas>
         </div>
     </main>
 
     <script>
-        const popup = document.getElementById('popup');
-        const mainContent = document.getElementById('main-content');
-        const optionBtns = document.querySelectorAll('.option-btn');
+        let selectedGeneration = null;
+        let selectedPlasmid = null;
 
-        optionBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                optionBtns.forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
+        document.getElementById('upload-plasmid').addEventListener('click', function() {
+            document.getElementById('file-input').click();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('file-input').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to upload file. Status: ' + response.status);
+                        }
+                        return response.json(); 
+                    })
+                    .then(data => {
+                        console.log('File uploaded successfully:', data);
+                        console.log('Data received from server:', data);
+                        updateVisualizer(data)
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
             });
         });
 
+        function updateVisualizer(data) {
+            const dataArray = Object.values(data);
+            console.log('Data Array:', dataArray);
+
+            const canvas = document.getElementById('plasmid-canvas');
+            const ctx = canvas.getContext('2d');
+
+            if (!ctx) {
+                console.error('Failed to get canvas context');
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const radius = Math.min(canvas.width, canvas.height) / 2 - 10;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const ringWidth = 10; 
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius + ringWidth, 0, 2 * Math.PI);
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, true); 
+            ctx.closePath();
+            ctx.fillStyle = '#D3D3D3';
+            ctx.fill();
+
+            const maxEnd = Math.max(...dataArray.map(f => f.end));
+            const scale = (2 * Math.PI * radius) / maxEnd;
+
+            dataArray.forEach(feature => {
+                const startAngle = (feature.start / maxEnd) * 2 * Math.PI;
+                const endAngle = (feature.end / maxEnd) * 2 * Math.PI;
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius - 2, startAngle, endAngle);
+                ctx.arc(centerX, centerY, radius - ringWidth, endAngle, startAngle, true);
+                ctx.closePath();
+                ctx.fillStyle = getRandomPastelColor();
+                ctx.fill();
+
+                const labelAngle = (startAngle + endAngle) / 2;
+                const labelRadius = radius - ringWidth / 2;
+
+                ctx.font = '12px Arial';
+                const textWidth = ctx.measureText(feature.name).width;
+
+                const labelX = centerX + labelRadius * Math.cos(labelAngle);
+                const labelY = centerY + labelRadius * Math.sin(labelAngle);
+
+                const textOffset = textWidth / 2;
+                const angle = Math.atan2(labelY - centerY, labelX - centerX);
+                const adjustedX = labelX + (labelRadius * 0.1) * Math.cos(angle) * 2;
+                const adjustedY = labelY + (labelRadius * 0.1) * Math.sin(angle) * 2;
+
+                ctx.font = '12px Arial';
+                ctx.fillStyle = '#FFF';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(feature.name, adjustedX, adjustedY);
+            });
+        }
+
+        function getRandomPastelColor() {
+            const getRandomValue = () => Math.floor(Math.random() * 128 + 127);
+            const r = getRandomValue();
+            const g = getRandomValue();
+            const b = getRandomValue();
+            return `rgb(${r},${g},${b})`;
+        }
+
+        function handleSelection(buttons, selectionType) {
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    buttons.forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+
+                    if (selectionType === 'generation') {
+                        selectedGeneration = this.id;
+                    } else if (selectionType === 'plasmid') {
+                        selectedPlasmid = this.id;
+                    }
+
+                    console.log('Selected Generation Option:', selectedGeneration);
+                    console.log('Selected Plasmid Option:', selectedPlasmid);
+                });
+            });
+        }
+
+        const generateOptions = document.querySelectorAll('.option-group .option-btn');
+        handleSelection(generateOptions, 'generation');
+
+        const plasmidOptions = document.querySelectorAll('.plasmid-options .option-btn');
+        handleSelection(plasmidOptions, 'plasmid');
+
         document.getElementById('start-project').addEventListener('click', function() {
             if (document.getElementById('project-name').value.trim()) {
-                popup.style.display = 'none';
-                mainContent.classList.remove('hidden');
+                if (selectedGeneration && selectedPlasmid) {
+                    document.getElementById('popup').style.display = 'none';
+                    document.getElementById('main-content').classList.remove('hidden');
+
+                    console.log('Selected Generation Option:', selectedGeneration);
+                    console.log('Selected Plasmid Option:', selectedPlasmid);
+                } else {
+                    alert("Please make selections for both options!");
+                }
             } else {
                 alert("Please enter a project name!");
             }

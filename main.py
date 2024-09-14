@@ -1,34 +1,54 @@
-from plasmid import Plasmid
-from model import Model
+from flask import Flask, request, jsonify, render_template, session
 import os
 
-documents = []
-filenames = []
+from plasmid import Plasmid
 
-dataset = "dataset/curated"
+app = Flask(__name__)
+app.secret_key = os.environ["FLASK_SECRET_KEY"]
 
-for filename in os.listdir(dataset):
-    with open(os.path.join(dataset, filename), 'r') as f:
-        documents.append(f.read())
-        filenames.append(filename)
+UPLOAD_FOLDER = 'input/plasmid'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'dna'}
 
-model = Model()
+# using global var for now, fix later
+plasmid = None
 
-model.add_documents(documents, filenames)
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-#model.run_scratch("generate a DNA string that makes my yeast glow")
+def process_file(file_path):
+    labels = []
+    with open(file_path, 'r') as file:
+        # Example processing logic
+        for line in file:
+            labels.append(line.strip())
+    return labels
 
-path = "input/plasmid/plasmid.dna"
+def convert_to_dict_of_dicts(data):
+    return {i: item for i, item in enumerate(data)}
 
-plas = Plasmid(path)
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'})
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'})
+    
+    if file and allowed_file(file.filename):
+        filename = os.path.join(app.config['UPLOAD_FOLDER'], "plasmid.dna")
+        file.save(filename)
+        
+        # Process the file and get labels
+        plasmid = Plasmid(filename)
+        features = convert_to_dict_of_dicts(plasmid.feat)
+        print("returing features")
+        return jsonify(features)
+    
+    return jsonify({'error': 'Invalid file type'})
 
-gene = {
-    "name": "test",
-    "seq": "ATATATATATATATATATATATATAT"
-}
-
-plas.insert(gene)
-
-sequence = "ATGATGATGATGATGTAGATGTAGATG"
-model.verify_structure(sequence)
-
+@app.route('/')
+def index():
+    return render_template('index.html')  # Ensure this template contains your visualizer

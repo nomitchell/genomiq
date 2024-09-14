@@ -160,7 +160,6 @@ input {
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: -10; 
 }
 
 .blurb-text {
@@ -234,20 +233,24 @@ input {
 }
 
 .gradient-text {
-    font-size: 0.9rem; /* Smaller font size */
-    font-style: italic; /* Italic text */
-    background: linear-gradient(90deg, #ff5c5c, #e0e0e0); /* Gradient colors */
-    color: transparent; /* Make the text color transparent */
-    background-clip: text; /* Clip the gradient to the text */
-    -webkit-background-clip: text; /* For WebKit browsers (fallback) */
-    text-fill-color: transparent; /* Ensure text color is transparent */
-    text-align: center; /* Center text horizontally */
-    margin: 0.5rem 0; /* Margins for spacing */
-    max-width: 100%; /* Ensure the text container doesn't exceed its parent's width */
-    width: 20%; /* Adjust the width to your desired maximum width */
-    word-wrap: break-word; /* Allow long words to break and wrap */
-    line-height: 1.4; /* Adjust line height for better readability */
-    display: block; /* Ensure block-level behavior for wrapping */
-    overflow-wrap: break-word; /* Ensures that text wraps correctly */
-    word-break: break-word; /* For handling long words */
+    font-size: 0.9rem;
+    font-style: italic;
+    background: linear-gradient(90deg, #ff5c5c, #e0e0e0);
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    text-fill-color: transparent;
+    text-align: center;
+    margin: 0.5rem 0;
+    max-width: 100%;
+    width: 20%;
+    word-wrap: break-word;
+    line-height: 1.4;
+    display: block;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+#plasmid-canvas {
+    border: none;
 }
