@@ -34,7 +34,7 @@ class p_utils():
     def _get_restriction(seq):
         seq = Seq(seq)
         a = Analysis(AllEnzymes, seq)
-        
-        return a.full()
 
-p_utils.load_plasmid("input/plasmid.dna")
+        b = [{'name': name, 'location': value[0]} for name, value in a.full().items() if len(value) == 1]
+
+        return b
