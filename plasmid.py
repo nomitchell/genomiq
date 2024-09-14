@@ -35,8 +35,8 @@ class Plasmid():
         
         self.feat.append(
             {
-                "start": best_rs_loc:
-                "end": best_rs_loc + gene_len
+                "start": best_rs_loc,
+                "end": best_rs_loc + gene_len,
                 "name": gene_name
             }
         )
