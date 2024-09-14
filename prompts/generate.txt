@@ -1,0 +1,10 @@
+Based on the #query, generate a DNA sequence string using only the characters A, T, C, and G. Adhere to these biological principles:
+
+Include common genetic motifs like start codons (ATG), and stop codons (TAA, TAG, TGA).
+Ensure the sequence consists of complete codons (divisible by 3).
+Mimic natural codon bias and GC content typical of the specified organism or gene type.
+
+Base your sequence on the characteristics specified in the query. Consider the organism, gene type, or specific features requested. Adjust the sequence length, structure, and composition to match the requirements given.
+Output only the raw DNA string without any additional text, formatting, or explanation. The sequence should precisely follow the specifications provided in the query that follows:
+
+#query

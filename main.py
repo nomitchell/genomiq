@@ -16,11 +16,7 @@ model = Model()
 
 model.add_documents(documents, filenames)
 
-results = collection.query(
-    query_texts=["This is a query document about resistance"],
-    n_results=1
-)
-print(results)
+model.run_scratch("generate a DNA string that makes my yeast glow")
 
 path = "input/plasmid.dna"
 
