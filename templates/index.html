@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenomIQr</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo"></div>
+        <div class="website-name">GenomIQ V1</div>
+    </header>
+    
+    <div id="popup" class="popup-container">
+        <div class="popup-content">
+            <h2>Create a New Project</h2>
+            <label for="project-name">Project Name</label>
+            <input type="text" id="project-name" placeholder="Enter your project name">
+    
+            <div class="option-group">
+                <label for="generation-type">Select your generation type</label>
+                <div class="button-group">
+                    <button class="option-btn" id="from-retrieval">From Retrieval</button>
+                    <button class="option-btn" id="from-scratch">From Scratch</button>
+                </div>
+            </div>
+    
+            <div class="plasmid-options">
+                <label for="plasmid-choice">Choose your plasmid or use recommended</label>
+                <div class="button-group">
+                    <button class="option-btn" id="select-base">Select Plasmid Base</button>
+                    <button class="option-btn" id="upload-plasmid">Upload Your Own</button>
+                </div>
+            </div>
+    
+            <button class="submit-btn" id="start-project">Start Project</button>
+        </div>
+    </div>
+
+    <main id="main-content" class="hidden">
+        <div class="blurb-text">Genetic Engineering Redefined</div>
+        
+        <div class="chat-container">
+            <div class="chat-input">
+                <input type="text" id="chat-message" placeholder="Enter your message...">
+                <button class="send-btn" id="send-message">Send</button>
+            </div>
+        </div>
+
+        <div class="plasmid-container">
+            <div class="plasmid-ring" id="plasmid-ring"></div>
+        </div>
+    </main>
+
+    <script>
+        const popup = document.getElementById('popup');
+        const mainContent = document.getElementById('main-content');
+        const optionBtns = document.querySelectorAll('.option-btn');
+
+        optionBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                optionBtns.forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        document.getElementById('start-project').addEventListener('click', function() {
+            if (document.getElementById('project-name').value.trim()) {
+                popup.style.display = 'none';
+                mainContent.classList.remove('hidden');
+            } else {
+                alert("Please enter a project name!");
+            }
+        });
+    </script>
+</body>
+</html>
