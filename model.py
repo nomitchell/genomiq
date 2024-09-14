@@ -41,11 +41,12 @@ class Model():
         pattern = r'```(.*?)```'
         extracted = re.findall(pattern, vector_choice, re.DOTALL)
 
+        name = re.search(r'"(.*?)"', vector_choice).group(1)
+
         gene = {
             "seq": extracted[0][1:-2],
-            "name": "inserted1"
+            "name": name
         }
-        print('gene', gene)
 
         return gene, None
 
@@ -68,7 +69,7 @@ class Model():
 
         gene = {
             "seq": dna,
-            "name": "inserted1"
+            "name": "Gen"
         }
 
         return gene, z_score

@@ -271,3 +271,26 @@ input {
 .save-button:hover {
     background-color: #ff8c8c;
 }
+
+.spinner {
+    position: absolute;
+    top: 100px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #ff0000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1000;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.hidden {
+    display: none;
+}
+

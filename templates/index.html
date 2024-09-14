@@ -34,6 +34,8 @@
                     <input type="file" id="file-input" style="display: none;">
                 </div>
             </div>
+
+            <input type="text" id="iteration-field" placeholder="Number of iterations" style="display: none;">
     
             <button class="submit-btn" id="start-project">Start Project</button>
         </div>
@@ -50,6 +52,8 @@
                 <button class="send-btn" id="send-message" type="submit">Send</button>
             </form>
         </div>
+
+        <div id="spinner" class="spinner hidden"></div>
 
         <div class="plasmid-container">
             <canvas id="plasmid-canvas" width="800" height="400"></canvas>
@@ -256,6 +260,8 @@
 
             document.getElementById('chat-form').addEventListener('submit', function(event) {
                 event.preventDefault();
+                
+                document.getElementById('spinner').classList.remove('hidden');
 
                 const message = document.getElementById('chat-message').value;
                 console.log(message);
@@ -280,6 +286,10 @@
                         console.log('Insertion succesful', data);
                         updateVisualizer(data)
                     })
+                    .finally(() => {
+                    // Hide spinner
+                    document.getElementById('spinner').classList.add('hidden');
+                })
                 .catch(error => {
                     console.error('Error:', error);
                 });
@@ -306,7 +316,6 @@
         });
 
         function drawCenteredText(ctx, text, canvasWidth, canvasHeight, fontSize = '20px', fontFamily = 'Arial', textColor = '#000') {
-            // Set the font style
             ctx.font = `${fontSize} ${fontFamily}`;
             ctx.textAlign = 'center'; // Center the text horizontally
             ctx.textBaseline = 'middle'; // Center the text vertically
@@ -320,6 +329,16 @@
             console.log("GRAAAAAHHHH")
             ctx.fillText(text, x, y);
         }
+
+        document.getElementById('from-scratch').addEventListener('click', function() {
+            const inputField = document.getElementById('iteration-field');
+
+            if (inputField.style.display === 'none') {
+                inputField.style.display = 'block';
+            } else {
+                inputField.style.display = 'none';
+            }
+        });
 
     </script>
 </body>

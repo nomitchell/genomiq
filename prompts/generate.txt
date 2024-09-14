@@ -8,3 +8,4 @@ Base your sequence on the characteristics specified in the query. Consider the o
 Output only the raw DNA string without any additional text, formatting, or explanation. The sequence should precisely follow the specifications provided in the query that follows:
 
 #query
+
