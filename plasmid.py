@@ -16,8 +16,6 @@ class Plasmid():
     def __init__(self, path):
         self.seq, self.feat, self.rs = p_utils.load_plasmid(path)
 
-        #self.rs = in_utils.restriction_ordering(self.rs, self.feat)
-
     def insert(self, gene):
         # test = in_utils.restriction_scoring(self.rs, self.feat)
         # at best restriction site, insert sequence
@@ -25,8 +23,6 @@ class Plasmid():
         # using sequence lenght, update all restriction sites past it to new location
         # using new features, reorder rs list
         # gene is dict name=name seq=seq
-
-        # TODO need to add promoter and terminator stuff
 
         self.rs = in_utils.restriction_ordering(self.rs, self.feat)
 
@@ -51,8 +47,8 @@ class Plasmid():
 
         self.feat.append(
             {
-                "start": best_rs_loc + len(PROMOTER[1]),
-                "end": best_rs_loc + gene_len + len(PROMOTER[1]),
+                "start": best_rs_loc + len(TERMINATOR[1]),
+                "end": best_rs_loc + gene_len + len(TERMINATOR[1]),
                 "name": gene_name
             }
         )
@@ -60,16 +56,16 @@ class Plasmid():
         self.feat.append(
             {
                 "start": best_rs_loc,
-                "end": best_rs_loc + len(PROMOTER[1]),
-                "name": PROMOTER[0]
+                "end": best_rs_loc + len(TERMINATOR[1]),
+                "name": TERMINATOR[0]
             }
         )
         
         self.feat.append(
             {
-                "start": best_rs_loc + len(PROMOTER[1]) + gene_len,
+                "start": best_rs_loc + len(TERMINATOR[1]) + gene_len,
                 "end": best_rs_loc + ADDED_LEN + gene_len,
-                "name": TERMINATOR[0]
+                "name": PROMOTER[0]
             }
         )
 

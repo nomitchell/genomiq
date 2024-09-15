@@ -2,6 +2,13 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import json
 
+'''
+This is a python script for a simple GUI based tool that makes it easier to build finetuning datasets
+for cohere.
+
+Based on the initial prompt you can rapidly add new rows of data.
+'''
+
 class DNASequenceDatasetCreatorGUI:
     def __init__(self, master):
         self.master = master
@@ -30,18 +37,14 @@ Output only the raw DNA string without any additional text, formatting, or expla
 #query
 """)
 
-        # Chatbot Response
         ttk.Label(self.master, text="Chatbot Response:").grid(row=2, column=0, padx=5, pady=5, sticky="w")
         self.chatbot_text = tk.Text(self.master, height=10, width=90)
         self.chatbot_text.grid(row=3, column=0, padx=5, pady=5, columnspan=2)
 
-        # Add row button
         ttk.Button(self.master, text="Add Row", command=self.add_row).grid(row=4, column=0, columnspan=2, pady=10)
 
-        # Save button
         ttk.Button(self.master, text="Save", command=self.save_data).grid(row=5, column=0, columnspan=2, pady=10)
 
-        # Row count label
         self.row_count_var = tk.StringVar(value="Current row count: 0")
         ttk.Label(self.master, textvariable=self.row_count_var).grid(row=6, column=0, columnspan=2, pady=10)
 

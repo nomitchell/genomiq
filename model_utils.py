@@ -3,6 +3,7 @@ import os
 import shutil
 import requests
 from bs4 import BeautifulSoup
+import glob
 
 
 class mo_utils():
@@ -11,7 +12,6 @@ class mo_utils():
 
         sequence = str(mo_utils._to_amino(dna))
         print(sequence)
-        #sequence = "MALKSLVLLSLLVLVLMALKSLVLLSLLVLVLMALKSLVLLSLLVLVL"
         
         with open("input/structure/temp.fasta", 'w') as f:
             f.write(header)
@@ -55,6 +55,14 @@ class mo_utils():
             else:
                 print(f"Failed to upload file. Status code: {response.status_code}")
                 return 10000000
+
+    def get_rank_1_path(folder_path):
+        search_pattern = os.path.join(folder_path, 'sp_AA_unrelaxed_rank_001_alphafold2_ptm_model_*.pdb')
+        
+        files = glob.glob(search_pattern)
+        
+        rank_1_files = [file for file in files if 'rank_001' in os.path.basename(file)]
+        return rank_1_files[0] if rank_1_files else None
     
     def _to_amino(dna):
         seq = Seq(dna)

@@ -4,6 +4,8 @@ import os
 import re
 import subprocess
 from model_utils import mo_utils
+import threading
+import time
 
 class Model():
     def __init__(self):
@@ -27,11 +29,6 @@ class Model():
         self._add_documents(documents, filenames)
 
     def run_retrieval(self, query):
-        # save money
-        # retrieval doesn't need cohere generation
-        # extract sequence
-        # TODO cohere model verify if match query
-        
         result = self.collection.query(
             query_texts=[query],
             n_results=1
@@ -51,19 +48,15 @@ class Model():
         return gene, None
 
     def run_scratch(self, query):
-        # TODO simple fine tune
-
         prompt = self.generate_prompt + "\n" + query
 
         print('starting gen')
-        response = self.co.chat(
-            message=prompt
-        )
+        # using ft-ed model
+        response = self.co_chat_with_timeout(prompt)
         print("done gen")
 
-        print('response', response)
-
         dna = response.text
+        print(dna)
 
         z_score = self.verify_structure(dna)
 
@@ -92,7 +85,8 @@ class Model():
             print("Couldn't execute subprocess command.")
 
         # for some reason prosa wasn't working when file had a header
-        fname = "output/verify/sp_AA_unrelaxed_rank_001_alphafold2_ptm_model_5_seed_000.pdb"
+        folder_path = 'output/verify'
+        fname = mo_utils.get_rank_1_path(folder_path)
 
         with open(fname, 'r') as file:
             lines = file.readlines()
@@ -108,6 +102,29 @@ class Model():
         print("Z score", z_score)
 
         return z_score
+
+    def co_chat_with_timeout(self, prompt):
+        # sorry cohere, your api kept timing out so I had to set a time limit and retry
+        def target():
+            nonlocal result
+            try:
+                result = self.co.chat(message=prompt, model='c4e6f320-6a12-4385-ba5d-d39bc8935c0b-ft')
+            except Exception as e:
+                result = str(e)
+
+        result = None
+
+        thread = threading.Thread(target=target)
+        thread.start()
+        
+        thread.join(5)
+
+        if thread.is_alive():
+            print("Operation timed out. Retrying...")
+            thread.join()
+            return self.co_chat_with_timeout(prompt)
+
+        return result
 
     def _add_documents(self, documents, filenames):
         self.collection.add(

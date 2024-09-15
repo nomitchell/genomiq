@@ -7,5 +7,11 @@ Mimic natural codon bias and GC content typical of the specified organism or gen
 Base your sequence on the characteristics specified in the query. Consider the organism, gene type, or specific features requested. Adjust the sequence length, structure, and composition to match the requirements given.
 Output only the raw DNA string without any additional text, formatting, or explanation. The sequence should precisely follow the specifications provided in the query that follows:
 
+Don't spam repeated sections, only code as much as necessary.
+
+IT MUST ONLY CONTAIN A, C, T, or G.
+
+Example: ATGACTGTAGTATAG
+
 #query
 
