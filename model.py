@@ -4,8 +4,7 @@ import os
 import re
 import subprocess
 from model_utils import mo_utils
-import threading
-import time
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 class Model():
     def __init__(self):
@@ -54,6 +53,7 @@ class Model():
         # using ft-ed model
         response = self.co_chat_with_timeout(prompt)
         print("done gen")
+        print(response)
 
         dna = response.text
         print(dna)
@@ -104,25 +104,18 @@ class Model():
         return z_score
 
     def co_chat_with_timeout(self, prompt):
-        # sorry cohere, your api kept timing out so I had to set a time limit and retry
-        def target():
-            nonlocal result
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(lambda: self.co.chat(message=prompt, model='c4e6f320-6a12-4385-ba5d-d39bc8935c0b-ft'))
+            print("future", future)
             try:
-                result = self.co.chat(message=prompt, model='c4e6f320-6a12-4385-ba5d-d39bc8935c0b-ft')
+                result = future.result(timeout=10)
+                print("result in timeout", result)
+            except TimeoutError:
+                print("Operation timed out. Retrying...")
+                return self.co_chat_with_timeout(prompt)
             except Exception as e:
+                print('here')
                 result = str(e)
-
-        result = None
-
-        thread = threading.Thread(target=target)
-        thread.start()
-        
-        thread.join(5)
-
-        if thread.is_alive():
-            print("Operation timed out. Retrying...")
-            thread.join()
-            return self.co_chat_with_timeout(prompt)
 
         return result
 

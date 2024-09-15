@@ -8,6 +8,7 @@ import os
 import glob
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 def get_rank_1_path(folder_path):
     search_pattern = os.path.join(folder_path, 'sp_AA_unrelaxed_rank_001_alphafold2_ptm_model_*.pdb')
@@ -56,32 +57,16 @@ def verify_structure(dna):
 co = cohere.Client(os.environ["COHERE_API_KEY"])
 
 def co_chat_with_timeout(prompt, tune):
-    # Define a function to run the co.chat call
-    def target():
-        nonlocal result
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(lambda: co.chat(message=prompt, model='c4e6f320-6a12-4385-ba5d-d39bc8935c0b-ft') if tune else co.chat(message=prompt))
+        
         try:
-            if tune:
-                result = co.chat(message=prompt, model='c4e6f320-6a12-4385-ba5d-d39bc8935c0b-ft')
-            else:
-                result = co.chat(message=prompt)
+            result = future.result(timeout=10)
+        except TimeoutError:
+            print("Operation timed out. Retrying...")
+            return co_chat_with_timeout(prompt, tune)
         except Exception as e:
             result = str(e)
-
-    # Initialize the result
-    result = None
-
-    # Create and start the thread
-    thread = threading.Thread(target=target)
-    thread.start()
-    
-    # Wait for the thread to complete or timeout
-    thread.join(5)
-
-    if thread.is_alive():
-        # Timeout occurred, handle it
-        print("Operation timed out. Retrying...")
-        thread.join()  # Ensure the thread finishes
-        return co_chat_with_timeout(prompt, timeout)  # Retry
 
     return result
 
@@ -93,13 +78,14 @@ def main():
     # first naive model, then fine tuned
     # generate string, then fold, repeat
 
-    with open("dataset/evaluation/questions.txt", 'r') as f:
+    with open("dataset/evaluation/questions_small.txt", 'r') as f:
         questions = f.readlines()
 
     z_score_hist_no = []
     z_score_hist_tune = []
 
     for question in tqdm(questions):
+        break
         prompt = generate_prompt + "\n" + question
         
         # first no tune
