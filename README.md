@@ -1,5 +1,7 @@
 # genomiq
 
+https://devpost.com/software/genomiq
+
 HackTheNorth 2024
 
 Noah Mitchell
