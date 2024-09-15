@@ -11,7 +11,7 @@ class mo_utils():
 
         sequence = str(mo_utils._to_amino(dna))
         print(sequence)
-        sequence = "MALKSLVLLSLLVLVLMALKSLVLLSLLVLVLMALKSLVLLSLLVLVL"
+        #sequence = "MALKSLVLLSLLVLVLMALKSLVLLSLLVLVLMALKSLVLLSLLVLVL"
         
         with open("input/structure/temp.fasta", 'w') as f:
             f.write(header)
